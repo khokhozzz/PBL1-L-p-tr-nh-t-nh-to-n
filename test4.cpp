@@ -1,5 +1,5 @@
 #include <bits/stdc++.h>
-#define INF (INT_MAX - 10000)
+#define INF (INT_MAX - 10000) // Chống tràn số
 using namespace std;
 
 
@@ -72,11 +72,12 @@ int hungarianAlgorithm(vector<vector<int>> &cost, int size){
     vector<bool> didAssigned (size, false);
     int res = 0;
     for(int id = 0; id < size; id++){
-        int jobSeeker = id;
+        int jobSeeker = id; //jobSeeker == người tìm việc
         bool isProcessing = true;
         int prevMinCostJob = 0;
         int tmpSlack;
         match[0] = jobSeeker;
+        //Chạy đến khi nào thấy được việc chưa được phân công cho bất kì jobSeeker nào
         while(isProcessing){
             // cout << "bug1\n";
             int minCost = INF;
@@ -118,14 +119,25 @@ int hungarianAlgorithm(vector<vector<int>> &cost, int size){
             }
             prevMinCostJob = minCostJob;
         }
-        int prevJob = prevMinCostJob;
-        int currJob;
-        int tmpJob;
+        //Luôn bắt đầu tại job chưa được nhận trong chuỗi chồng lấn job (tức là match[job] = -1)
+        //Vì điều kiện dừng của while là cho đến khi nào gặp việc chưa được phân công -> prevMinCostJob = job cuối cùng chưa đuọc phân công
+        int currJob = prevMinCostJob;
+        int prevJob;
+        /*
+        Dựa trên ý tưởng đảo vị trí của seeker từ job cũ đến job mới với -1 => qua nhiều vòng lặp mà kéo -1 về match[0],
+        tức là ô của seeker ban đầu đang tìm việc (không phải các seeker bị tranh việc phía sau)
+
+        Ta cũng không cần phải lo về lỗi Write before Read ở match, bởi vì:
+        - Đây là một dây chuyền mà ô sau ghi đè lên ô trước
+        - Ô đầu tiên luôn ghi đè lên ô chưa từng được sử dụng
+        => Đã kịp dịch chuyển job trước khi bị ghi đè bởi seeker khác
+
+        */
         while(match[0] != -1){
-            currJob = way[prevJob];
-            match[prevJob] = match[currJob];
-            match[currJob] = -1;
-            prevJob = currJob;
+            prevJob = way[currJob];
+            match[currJob] = match[prevJob];
+            match[prevJob] = -1;
+            currJob = prevJob; //Mảng way sẽ cung cấp phần tử tiếp theo của chuỗi phản ứng
         }
         fill(isAssigned.begin(), isAssigned.end(), false);
         fill(didAssigned.begin(), didAssigned.end(), false);
