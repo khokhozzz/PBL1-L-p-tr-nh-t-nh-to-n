@@ -105,6 +105,7 @@ class Solution {
         u = vector<int> (size, INF);
         v = vector<int> (size, INF);
         upperBound = NNN(cost, size);
+        // upperBound = INF;
         matrxReduction(cost, size);
         isVisited = vector<bool> (size, false);
         isVisited[0] = true;
