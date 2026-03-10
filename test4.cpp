@@ -195,3 +195,4 @@ int main(){
     int res = sol.tsp(cost);
     cout << res <<endl;
 }
+//gugugaga
