@@ -7,9 +7,7 @@ using namespace std;
 
 class NNH {
 private:
-    int upperbound;
-    int len;
-    vector<bool> isVisited;
+
 
     void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost){
         if (cntDst == len - 1){
@@ -24,8 +22,14 @@ private:
             isVisited[dst] = false;
         }
     }
+
+protected:
+    int upperbound;
+    int len;
+    vector<bool> isVisited;
+
 public:    
-    int upperboundNNH(vector<vector<int>> &cost, int size){
+    int solveUpperboundNNH(vector<vector<int>> &cost, int size){
         int upperbound = INF;
         isVisited = vector<bool> (size, false);
         for(int startDst = 0; startDst < size; startDst++){
@@ -57,7 +61,7 @@ public:
 
     int solveTsp_NNH(vector<vector<int>> &cost){
         len = cost.size();
-        upperbound = upperboundNNH(cost, len);
+        upperbound = solveUpperboundNNH(cost, len);
         isVisited = vector<bool>(len, false);
         __solveDfs(0, 0, 0, cost);
         return upperbound;

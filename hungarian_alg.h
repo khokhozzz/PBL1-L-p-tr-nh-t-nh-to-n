@@ -1,9 +1,32 @@
-#include <bits/stdc++.h>
-#define INF INT_MAX
+#include <iostream>
+#include <vector>
+#include "nearest_neighbor_heuristic.h"
+
+#define INF (INT_MAX - 100000)
+
 using namespace std;
 
+class hungarian_alg : public NNH{
+protected: 
+    vector<int> u, v;
+private:
+    void __solveDfs(int dstOrder, int currDst, int currCost, vector<vector<int>> &cost, int size){
+        if (dstOrder == size - 1){
+            upperbound = min(upperbound, currCost + cost[currDst][0] - u[currDst] - v[0]);
+            return;
+        }
+        for (int dst = 0; dst < size; dst++){
+            if (isVisited[dst]) continue;
+            if (currCost + cost[currDst][dst] - u[currDst] - v[dst] >= upperbound) continue;
+            isVisited[dst] = true;
+            __solveDfs(dstOrder + 1, dst, currCost + cost[currDst][dst] - u[currDst] - v[dst], cost, size);
+            isVisited[dst] = false;
+        }
+        
+    }
 
-int hungarian_algorithm(vector<vector<int>> &cost, int size, vector<int> &u, vector<int> &v){
+public:
+    int solveHungarian_algorithm(vector<vector<int>> &cost, int size, vector<int> &u, vector<int> &v){
         vector<int> match (size + 1, -1);
         vector<int> way (size + 1, 0);
         vector<int> slack (size, INF);
@@ -60,40 +83,17 @@ int hungarian_algorithm(vector<vector<int>> &cost, int size, vector<int> &u, vec
         }
         return res;
     }
+    
 
-// class Solution {
-// public:
-//     int assignmentProblem(int Arr[], int N) {
-//         vector<int> u(N, 0);
-//         vector<int> v(N, 0);
-//         vector<vector<int>> C(N, vector<int>(N + 1, 0));
-        
-//         // Bung dữ liệu từ mảng 1 chiều sang ma trận 2 chiều
-//         for (int i = 0; i < N; i++) {
-//             for (int j = 0; j < N; j++) {
-//                 // Ánh xạ công thức 1D sang 2D
-//                 // Dùng i + 1 và j + 1 để dữ liệu thực sự bắt đầu từ ô C[1][1]
-//                 C[i][j] = Arr[i * N + j];
-//             }
-//         }
-
-//         // Lúc này ma trận C đã ở đúng form chuẩn. 
-//         // Ném C và N vào hàm xử lý Hungarian của bạn tại đây:
-//         // return solveHungarian(C, N);
-        
-//         return hungarianAlgorithm(C, N, u, v); 
-//     }
-// };
-
-int main(){
-    int n; cin >> n;
-    vector<int> u(n, 0);
-    vector<int> v(n, 0);
-    vector<vector<int>> cost(n, vector<int>(n, 0));
-    for (int i = 0; i < n; i++){
-        for(int j = 0; j < n; j++){
-            cin >> cost[i][j];
-        }
+    int solveTsp_hungarian_alg(vector<vector<int>> &cost, bool usingNNH){
+        len = cost.size();
+        isVisited = vector<bool>(len);
+        u = vector<int> (len, 0);
+        v = vector<int> (len, 0);
+        upperbound = (usingNNH ? solveUpperboundNNH(cost, len) : INF);
+        int lowerbound = solveHungarian_algorithm(cost, len, u, v);
+        __solveDfs(0, 0, lowerbound, cost, len);
+        return upperbound;
     }
-    cout << hungarian_algorithm(cost, n, u, v) << endl;
-}
+
+};
