@@ -46,7 +46,7 @@ void printHeader() {
     cout << "\n======================================================\n";
     cout << CYAN << "  PROJECT: TRAVELING SALESPERSON PROBLEM (TSP)" << RESET << "\n";
     cout << "  Instructed by: Dr. Nguyen Van A\n";
-    cout << "  Developed by : Thang & Tran Van B\n";
+    cout << "  Developed by : Tran Duc Thang & Nguyen Gia Lam\n";
     cout << "======================================================\n\n";
 }
 

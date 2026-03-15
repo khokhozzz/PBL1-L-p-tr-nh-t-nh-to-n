@@ -50,7 +50,7 @@ private:
         }
 
         for (int dst = 1; dst < len; dst++) {
-            if (isVisited[dst]) continue; // Chặn ngay và luôn
+            if (isVisited[dst]) continue; 
 
             cout << CYAN << "\n[-] Step (NNH Bound DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
@@ -121,7 +121,8 @@ public:
         int local_upperbound = INF;
         vector<bool> local_isVisited(size, false);
         for(int startDst = 0; startDst < size; startDst++){
-            cout << "\nStarting point: City " << startDst << "\n";
+            // Lên màu sặc sỡ cho bớt trầm cảm
+            cout << CYAN << "\n>>> Starting point: City " << GREEN << startDst << RESET << "\n";
             int currDst = startDst;
             int nextDst = startDst;
             int sumCost = 0;

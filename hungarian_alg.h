@@ -41,7 +41,7 @@ private:
         }
 
         for (int dst = 0; dst < size; dst++){
-            if (isVisited[dst]) continue; // Chặn mượt từ đầu cửa
+            if (isVisited[dst]) continue; 
 
             cout << CYAN << "\n[-] Step (Hungarian DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
@@ -156,7 +156,8 @@ public:
         cout << YELLOW << "\n=== STARTING HUNGARIAN ALGORITHM LOWERBOUND ===" << RESET << "\n";
         
         for (int row = 0; row < size; row ++){
-            cout << "\n" << CYAN << ">>> Process Job Seeker (Row): " << row << RESET << "\n";
+            // Đã đổi text sang City/Dst cho chuẩn bài toán TSP
+            cout << "\n" << CYAN << ">>> Process Dst (Row): " << row << RESET << "\n";
             int jobSeeker = row;
             int prevMinCostJob = 0;
             match[0] = jobSeeker;
@@ -176,7 +177,8 @@ public:
                     }
                 }
 
-                cout << "  - JobSeeker pulled in: " << jobSeeker << "\n";
+                // Chỉnh màu đỡ mù mắt
+                cout << MAGENTA << "  - City pulled in: " << jobSeeker << RESET << "\n";
                 cout << "  - Slack array (before sub): [";
                 for (int j = 0; j < size; j++) {
                     if (isAssigned[j] > -1 || slack[j] >= INF/2) cout << "INF";
@@ -184,7 +186,7 @@ public:
                     if (j < size - 1) cout << ", ";
                 }
                 cout << "]\n";
-                cout << "  - Found minCost = " << GREEN << minCost << RESET << " at Job = " << GREEN << minCostJob - 1 << RESET << "\n";
+                cout << "  - Found minCost = " << GREEN << minCost << RESET << " at Target City = " << GREEN << minCostJob - 1 << RESET << "\n";
 
                 u[row] += minCost;
                 res += minCost;
@@ -209,7 +211,7 @@ public:
                 prevMinCostJob = minCostJob;
                 jobSeeker = isAssigned[minCostJob - 1] = match[minCostJob];
                 
-                cout << "  - Active assigned jobs (isAssigned): [";
+                cout << "  - Active assigned cities (isAssigned): [";
                 for (int j=0; j<size; j++) cout << (isAssigned[j]>-1 ? to_string(isAssigned[j]) : "-") << (j<size-1?", ":"");
                 cout << "]\n";
             }
@@ -224,7 +226,7 @@ public:
             while(match[0] != -1){
                 prevJob = way[currJob];
                 
-                cout << "    Swapping... currJob=" << currJob << ", prevJob=" << prevJob << "\n";
+                cout << "    Swapping... currTarget=" << currJob << ", prevTarget=" << prevJob << "\n";
                 cout << "    Way:   [";
                 for(int i=0; i<=size; i++) {
                     if (i == currJob) cout << YELLOW << way[i] << RESET;
@@ -253,6 +255,22 @@ public:
             fill(slack.begin(), slack.end(), INF);
         }
         cout << GREEN << "=> Lowerbound (sum of minCosts): " << res << RESET << "\n";
+
+        // BONUS: Ma trận điều chỉnh mới tinh
+        cout << YELLOW << "\n=== FINAL ADJUSTED MATRIX (Cost - u - v) ===" << RESET << "\n";
+        cout << "    " << setw(6) << "";
+        for(int j=0; j<size; j++) cout << BLUE << setw(5) << j << RESET;
+        cout << "\n";
+        for(int i=0; i<size; i++) {
+            cout << "    " << BLUE << setw(4) << i << " |" << RESET;
+            for(int j=0; j<size; j++) {
+                if(cost[i][j] >= INF/2) cout << setw(5) << "INF";
+                else cout << setw(5) << cost[i][j] - u[i] - v[j];
+            }
+            cout << "\n";
+        }
+        cout << "\n";
+
         return res;
     }
     
