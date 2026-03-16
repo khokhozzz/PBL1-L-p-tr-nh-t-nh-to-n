@@ -12,18 +12,24 @@
 
 #define INF (INT_MAX - 100000)
 
-#ifndef RESET
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define CYAN    "\033[36m"
-#define MAGENTA "\033[35m"
-#endif
+// #ifndef RESET
+// // Khai báo công tắc màu toàn cục
+// extern bool USE_COLOR; 
+
+// // Sửa lại đống define màu thành thế này:
+// #define RESET   (USE_COLOR ? "\033[0m"  : "")
+// #define RED     (USE_COLOR ? "\033[31m" : "")
+// #define GREEN   (USE_COLOR ? "\033[32m" : "")
+// #define YELLOW  (USE_COLOR ? "\033[33m" : "")
+// #define BLUE    (USE_COLOR ? "\033[34m" : "")
+// #define CYAN    (USE_COLOR ? "\033[36m" : "")
+// #define MAGENTA (USE_COLOR ? "\033[35m" : "")
+// #endif
 
 using namespace std;
 using namespace std::chrono;
+
+bool USE_COLOR = true;
 
 // Function pointer wrappers
 typedef int (*AlgoFunc)(vector<vector<int>>&, bool);
@@ -142,6 +148,7 @@ int main() {
     streambuf *coutbuf = cout.rdbuf(); 
     ofstream out;
     if (outChoice == 1) {
+        USE_COLOR = false;
         out.open("output.txt");
         cout.rdbuf(out.rdbuf());
         printHeader(); 

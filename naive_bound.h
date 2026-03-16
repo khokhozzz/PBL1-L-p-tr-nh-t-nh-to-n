@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 #include <vector>
 #include <iomanip>
@@ -5,14 +6,17 @@
 
 #define INF (INT_MAX - 100000)
 
-#ifndef RESET
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define CYAN    "\033[36m"
-#endif
+// Khai báo công tắc màu toàn cục
+extern bool USE_COLOR; 
+
+// Sửa lại đống define màu thành thế này:
+#define RESET   (USE_COLOR ? "\033[0m"  : "")
+#define RED     (USE_COLOR ? "\033[31m" : "")
+#define GREEN   (USE_COLOR ? "\033[32m" : "")
+#define YELLOW  (USE_COLOR ? "\033[33m" : "")
+#define BLUE    (USE_COLOR ? "\033[34m" : "")
+#define CYAN    (USE_COLOR ? "\033[36m" : "")
+#define MAGENTA (USE_COLOR ? "\033[35m" : "")
 
 using namespace std;
 
