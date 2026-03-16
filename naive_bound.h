@@ -21,17 +21,26 @@ private:
     int res;
     int len;
     vector<bool> isVisited;
+    vector<int> bestPath;
 
-    void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost){
+    void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost, vector<int>& path){
         if (cntDst == len - 1){
-            res = min(currSum + cost[currDst][0], res);
+            if (currSum + cost[currDst][0] < res) {
+                res = currSum + cost[currDst][0];
+                bestPath = path;
+                bestPath.push_back(0);
+            }
             return;
         }
         for (int dst = 1; dst < len; dst ++){
             if (currSum + cost[currDst][dst] >= res) continue;
             if (isVisited[dst]) continue;
             isVisited[dst] = true;
-            __solveDfs(cntDst + 1, dst, currSum + cost[currDst][dst], cost);
+            path.push_back(dst);
+            
+            __solveDfs(cntDst + 1, dst, currSum + cost[currDst][dst], cost, path);
+            
+            path.pop_back();
             isVisited[dst] = false;
         }
     }
@@ -45,6 +54,8 @@ private:
             if (finalCost < res) {
                 cout << GREEN << "    -> NEW BEST PATH FOUND! Cost: " << finalCost << RESET << "\n";
                 res = finalCost;
+                bestPath = path;
+                bestPath.push_back(0);
             } else {
                 cout << "    -> Path completed but cost " << finalCost << " >= bound " << res << "\n";
             }
@@ -52,7 +63,7 @@ private:
         }
 
         for (int dst = 1; dst < len; dst++) {
-            if (isVisited[dst]) continue; // Chặn trước cho nhẹ nợ
+            if (isVisited[dst]) continue; 
 
             cout << CYAN << "\n[-] Step (Naive Bound): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
@@ -87,7 +98,15 @@ public:
         len = cost.size();
         res = INF;
         isVisited = vector<bool>(len, false);
-        __solveDfs(0, 0, 0, cost);
+        bestPath.clear();
+        vector<int> path = {0};
+        
+        __solveDfs(0, 0, 0, cost, path);
+        
+        cout << GREEN << "\n=> OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        
         return res;
     }
 
@@ -95,12 +114,18 @@ public:
         len = cost.size();
         res = INF;
         isVisited = vector<bool>(len, false);
+        bestPath.clear();
         vector<int> path;
         path.push_back(0);
 
         cout << YELLOW << "\n=== STARTING NAIVE BOUND SEARCH ===" << RESET << "\n";
         __illuDfs(0, 0, 0, cost, path);
-        cout << GREEN << "\n=> FINAL MIN COST (Naive Bound): " << res << RESET << "\n";
+        
+        cout << GREEN << "\n=> FINAL OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        cout << GREEN << "=> FINAL MIN COST: " << res << RESET << "\n";
+        
         return res;
     }
 };

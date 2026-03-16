@@ -20,16 +20,24 @@ using namespace std;
 
 class NNH {
 private:
-    void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost){
+    void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost, vector<int>& path){
         if (cntDst == len - 1){
-            upperbound = min(currSum + cost[currDst][0], upperbound);
+            if (currSum + cost[currDst][0] < upperbound) {
+                upperbound = currSum + cost[currDst][0];
+                bestPath = path;
+                bestPath.push_back(0);
+            }
             return;
         }
         for (int dst = 1; dst < len; dst ++){
             if (currSum + cost[currDst][dst] >= upperbound) continue;
             if (isVisited[dst]) continue;
             isVisited[dst] = true;
-            __solveDfs(cntDst + 1, dst, currSum + cost[currDst][dst], cost);
+            path.push_back(dst);
+            
+            __solveDfs(cntDst + 1, dst, currSum + cost[currDst][dst], cost, path);
+            
+            path.pop_back();
             isVisited[dst] = false;
         }
     }
@@ -43,6 +51,8 @@ private:
             if (finalCost < upperbound) {
                 cout << GREEN << "    -> NEW BEST PATH! Cost: " << finalCost << " (beats bound " << upperbound << ")" << RESET << "\n";
                 upperbound = finalCost;
+                bestPath = path;
+                bestPath.push_back(0);
             } else {
                 cout << "    -> Path complete. Cost " << finalCost << " (did not beat bound)\n";
             }
@@ -84,6 +94,7 @@ protected:
     int upperbound;
     int len;
     vector<bool> isVisited;
+    vector<int> bestPath; // Protected để thằng cu Hungarian xài chung
 
 public:    
     int solveUpperboundNNH(vector<vector<int>> &cost, int size){
@@ -95,6 +106,8 @@ public:
             int sumCost = 0;
             int cntDst = 0;
             isVisited[startDst] = true;
+            vector<int> localPath = {startDst};
+
             while (cntDst < size - 1)
             {
                 int minCost = INF;
@@ -108,9 +121,14 @@ public:
                 sumCost += minCost;
                 isVisited[nextDst] = true;
                 currDst = nextDst;
+                localPath.push_back(currDst);
                 cntDst++;
             }
-            upperbound = min(upperbound, sumCost + cost[currDst][startDst]);
+            localPath.push_back(startDst); // Khép vòng
+            if (sumCost + cost[currDst][startDst] < upperbound) {
+                upperbound = sumCost + cost[currDst][startDst];
+                bestPath = localPath; // Lưu mảng xịn nhất của phần Heuristic
+            }
             fill(isVisited.begin(), isVisited.end(), false);
         }
         return upperbound;
@@ -121,7 +139,6 @@ public:
         int local_upperbound = INF;
         vector<bool> local_isVisited(size, false);
         for(int startDst = 0; startDst < size; startDst++){
-            // Lên màu sặc sỡ cho bớt trầm cảm
             cout << CYAN << "\n>>> Starting point: City " << GREEN << startDst << RESET << "\n";
             int currDst = startDst;
             int nextDst = startDst;
@@ -158,12 +175,16 @@ public:
                 cntDst++;
             }
             int cycleCost = sumCost + cost[currDst][startDst];
+            greedyPath.push_back(startDst);
             cout << "  Cycle complete. Path: [";
             for(int i=0; i<greedyPath.size(); i++) cout << greedyPath[i] << (i<greedyPath.size()-1?" -> ":"");
-            cout << " -> " << startDst << "]\n";
+            cout << "]\n";
             cout << "  Cost: " << sumCost << " + " << cost[currDst][startDst] << " (return) = " << cycleCost << "\n";
 
-            local_upperbound = min(local_upperbound, cycleCost);
+            if (cycleCost < local_upperbound) {
+                local_upperbound = cycleCost;
+                bestPath = greedyPath; // Lưu vết
+            }
             fill(local_isVisited.begin(), local_isVisited.end(), false);
         }
         cout << MAGENTA << "=> Final NNH Upperbound: " << local_upperbound << RESET << "\n";
@@ -172,14 +193,23 @@ public:
 
     int solveTsp_NNH(vector<vector<int>> &cost){
         len = cost.size();
+        bestPath.clear();
         upperbound = solveUpperboundNNH(cost, len);
         isVisited = vector<bool>(len, false);
-        __solveDfs(0, 0, 0, cost);
+        vector<int> path = {0};
+        
+        __solveDfs(0, 0, 0, cost, path);
+        
+        cout << GREEN << "\n=> OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        
         return upperbound;
     }
 
     int illuTsp_NNH(vector<vector<int>> &cost){
         len = cost.size();
+        bestPath.clear();
         cout << YELLOW << "\n=== STARTING NNH HEURISTIC SEARCH ===" << RESET << "\n";
         upperbound = illuUpperboundNNH(cost, len);
         isVisited = vector<bool>(len, false);
@@ -188,7 +218,12 @@ public:
         
         cout << YELLOW << "\n=== STARTING DFS WITH NNH BOUND ===" << RESET << "\n";
         __illuDfs(0, 0, 0, cost, path);
-        cout << GREEN << "\n=> FINAL MIN COST (NNH): " << upperbound << RESET << "\n";
+        
+        cout << GREEN << "\n=> FINAL OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        cout << GREEN << "=> FINAL MIN COST (NNH): " << upperbound << RESET << "\n";
+        
         return upperbound;
     }
 };

@@ -11,16 +11,25 @@ class hungarian_alg : public NNH{
 protected: 
     vector<int> u, v;
 private:
-    void __solveDfs(int dstOrder, int currDst, int currCost, vector<vector<int>> &cost, int size){
+    void __solveDfs(int dstOrder, int currDst, int currCost, vector<vector<int>> &cost, int size, vector<int>& path){
         if (dstOrder == size - 1){
-            upperbound = min(upperbound, currCost + cost[currDst][0] - u[currDst] - v[0]);
+            int finalCost = currCost + cost[currDst][0] - u[currDst] - v[0];
+            if (finalCost < upperbound) {
+                upperbound = finalCost;
+                bestPath = path;
+                bestPath.push_back(0);
+            }
             return;
         }
         for (int dst = 0; dst < size; dst++){
             if (isVisited[dst]) continue;
             if (currCost + cost[currDst][dst] - u[currDst] - v[dst] >= upperbound) continue;
             isVisited[dst] = true;
-            __solveDfs(dstOrder + 1, dst, currCost + cost[currDst][dst] - u[currDst] - v[dst], cost, size);
+            path.push_back(dst);
+            
+            __solveDfs(dstOrder + 1, dst, currCost + cost[currDst][dst] - u[currDst] - v[dst], cost, size, path);
+            
+            path.pop_back();
             isVisited[dst] = false;
         }
     }
@@ -34,6 +43,8 @@ private:
             if (finalCost < upperbound) {
                 cout << GREEN << "    -> NEW BEST PATH! Adjusted Cost: " << finalCost << RESET << "\n";
                 upperbound = finalCost;
+                bestPath = path;
+                bestPath.push_back(0);
             } else {
                 cout << "    -> Path complete. Adjusted Cost " << finalCost << " (not better)\n";
             }
@@ -156,7 +167,6 @@ public:
         cout << YELLOW << "\n=== STARTING HUNGARIAN ALGORITHM LOWERBOUND ===" << RESET << "\n";
         
         for (int row = 0; row < size; row ++){
-            // Đã đổi text sang City/Dst cho chuẩn bài toán TSP
             cout << "\n" << CYAN << ">>> Process Dst (Row): " << row << RESET << "\n";
             int jobSeeker = row;
             int prevMinCostJob = 0;
@@ -177,7 +187,6 @@ public:
                     }
                 }
 
-                // Chỉnh màu đỡ mù mắt
                 cout << MAGENTA << "  - City pulled in: " << jobSeeker << RESET << "\n";
                 cout << "  - Slack array (before sub): [";
                 for (int j = 0; j < size; j++) {
@@ -256,7 +265,6 @@ public:
         }
         cout << GREEN << "=> Lowerbound (sum of minCosts): " << res << RESET << "\n";
 
-        // BONUS: Ma trận điều chỉnh mới tinh
         cout << YELLOW << "\n=== FINAL ADJUSTED MATRIX (Cost - u - v) ===" << RESET << "\n";
         cout << "    " << setw(6) << "";
         for(int j=0; j<size; j++) cout << BLUE << setw(5) << j << RESET;
@@ -276,17 +284,26 @@ public:
     
     int solveTsp_hungarian_alg(vector<vector<int>> &cost, bool usingNNH){
         len = cost.size();
+        bestPath.clear();
         isVisited = vector<bool>(len);
         u = vector<int> (len, 0);
         v = vector<int> (len, 0);
         upperbound = (usingNNH ? solveUpperboundNNH(cost, len) : INF);
         int lowerbound = solveHungarian_algorithm(cost, len, u, v);
-        __solveDfs(0, 0, lowerbound, cost, len);
+        
+        vector<int> path = {0};
+        __solveDfs(0, 0, lowerbound, cost, len, path);
+        
+        cout << GREEN << "\n=> OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        
         return upperbound;
     }
 
     int illuTsp_hungarian_alg(vector<vector<int>> &cost, bool usingNNH){
         len = cost.size();
+        bestPath.clear();
         isVisited = vector<bool>(len, false);
         u = vector<int> (len, 0);
         v = vector<int> (len, 0);
@@ -306,7 +323,11 @@ public:
         cout << YELLOW << "\n=== STARTING DFS WITH HUNGARIAN COST ADJUSTMENTS ===" << RESET << "\n";
         __illuDfs(0, 0, lowerbound, cost, len, path);
         
-        cout << GREEN << "\n=> FINAL MIN COST (Hungarian" << (usingNNH?"+NNH":"") << "): " << upperbound << RESET << "\n";
+        cout << GREEN << "\n=> FINAL OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        cout << GREEN << "=> FINAL MIN COST (Hungarian" << (usingNNH?"+NNH":"") << "): " << upperbound << RESET << "\n";
+        
         return upperbound;
     }
 };

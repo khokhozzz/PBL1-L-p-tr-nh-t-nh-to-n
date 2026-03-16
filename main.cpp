@@ -4,12 +4,23 @@
 #include <vector>
 #include <chrono>
 #include <iomanip>
+#include <climits>
 #include "exhautive_search.h"
 #include "naive_bound.h"
 // #include "nearest_neighbor_heuristic.h"
 #include "hungarian_alg.h"
 
 #define INF (INT_MAX - 100000)
+
+#ifndef RESET
+#define RESET   "\033[0m"
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define YELLOW  "\033[33m"
+#define BLUE    "\033[34m"
+#define CYAN    "\033[36m"
+#define MAGENTA "\033[35m"
+#endif
 
 using namespace std;
 using namespace std::chrono;
@@ -50,6 +61,22 @@ void printHeader() {
     cout << "======================================================\n\n";
 }
 
+void printInitialMatrix(const vector<vector<int>>& costMatrix, int n) {
+    cout << YELLOW << "\n=== INITIAL COST MATRIX ===" << RESET << "\n";
+    cout << "    " << setw(6) << "";
+    for (int j = 0; j < n; j++) cout << BLUE << setw(5) << j << RESET;
+    cout << "\n";
+    for (int i = 0; i < n; i++) {
+        cout << "    " << BLUE << setw(4) << i << " |" << RESET;
+        for (int j = 0; j < n; j++) {
+            if (costMatrix[i][j] >= INF / 2) cout << setw(5) << "INF";
+            else cout << setw(5) << costMatrix[i][j];
+        }
+        cout << "\n";
+    }
+    cout << "======================================================\n\n";
+}
+
 int main() {
     printHeader();
     
@@ -73,8 +100,8 @@ int main() {
 
     if (inputChoice == 2) {
         cout << "\nSelect Testcase (0-5):\n";
-        cout << "  0 (3 cities), 1 (5 cities), 2 (10 cities)\n";
-        cout << "  3 (15 cities), 4 (20 cities), 5 (23 cities)\n";
+        cout << "  0 (3 cities)\n  1 (5 cities)\n  2 (10 cities)\n";
+        cout << "  3 (15 cities)\n  4 (20 cities)\n 5 (23 cities)\n";
         cout << "Choice: "; cin >> tcChoice;
         
         string filename = "testcase/input" + to_string(tcChoice) + ".txt";
@@ -118,6 +145,11 @@ int main() {
         out.open("output.txt");
         cout.rdbuf(out.rdbuf());
         printHeader(); 
+    }
+
+    // In ma trận ra sau khi đã setup file stream để lưu được vào output.txt nếu cần
+    if (inputChoice == 2) {
+        printInitialMatrix(costMatrix, n);
     }
 
     AlgoFunc algos[] = {runExhaustive, runNaive, runNNH, runHungarianOnly, runHungarianNNH};

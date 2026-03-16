@@ -20,16 +20,23 @@ private:
     int res;
     int len;
     vector<bool> isVisited;
+    vector<int> bestPath; // Mảng chốt hạ
 
-    void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost){
+    void __solveDfs(int cntDst, int currDst, int currSum, vector<vector<int>>& cost, vector<int>& path){
         if (cntDst == len - 1){
-            res = min(currSum + cost[currDst][0], res);
+            if (currSum + cost[currDst][0] < res) {
+                res = currSum + cost[currDst][0];
+                bestPath = path;
+                bestPath.push_back(0); // Vòng về đích
+            }
             return;
         }
         for (int dst = 1; dst < len; dst ++){
             if (isVisited[dst]) continue;
             isVisited[dst] = true;
-            __solveDfs(cntDst + 1, dst, currSum + cost[currDst][dst], cost);
+            path.push_back(dst);
+            __solveDfs(cntDst + 1, dst, currSum + cost[currDst][dst], cost, path);
+            path.pop_back();
             isVisited[dst] = false;
         }
     }
@@ -40,13 +47,19 @@ private:
             cout << CYAN << "[-] Step (DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
             cout << "]\n";
-            cout << GREEN << "    -> Reached end. Return to 0. Total Cost = " << finalCost << RESET << "\n";
-            res = min(finalCost, res);
+            if (finalCost < res) {
+                cout << GREEN << "    -> NEW BEST PATH FOUND! Total Cost = " << finalCost << RESET << "\n";
+                res = finalCost;
+                bestPath = path;
+                bestPath.push_back(0);
+            } else {
+                cout << "    -> Reached end. Total Cost = " << finalCost << "\n";
+            }
             return;
         }
 
         for (int dst = 1; dst < len; dst++) {
-            if (isVisited[dst]) continue; // Chặn ngay từ đầu
+            if (isVisited[dst]) continue; 
 
             cout << CYAN << "\n[-] Step (DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
@@ -77,7 +90,15 @@ public:
         len = cost.size();
         res = INF;
         isVisited = vector<bool>(len, false);
-        __solveDfs(0, 0, 0, cost);
+        bestPath.clear();
+        vector<int> path = {0};
+        
+        __solveDfs(0, 0, 0, cost, path);
+        
+        cout << GREEN << "\n=> OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        
         return res;
     }
 
@@ -85,12 +106,18 @@ public:
         len = cost.size();
         res = INF;
         isVisited = vector<bool>(len, false);
+        bestPath.clear();
         vector<int> path;
         path.push_back(0);
         
         cout << YELLOW << "\n=== STARTING EXHAUSTIVE SEARCH ===" << RESET << "\n";
         __illuDfs(0, 0, 0, cost, path);
-        cout << GREEN << "\n=> FINAL MIN COST (Exhaustive): " << res << RESET << "\n";
+        
+        cout << GREEN << "\n=> FINAL OPTIMAL PATH: [";
+        for(int i=0; i<bestPath.size(); i++) cout << bestPath[i] << (i<bestPath.size()-1?" -> ":"");
+        cout << "]" << RESET << "\n";
+        cout << GREEN << "=> FINAL MIN COST: " << res << RESET << "\n";
+        
         return res;
     }
 };
