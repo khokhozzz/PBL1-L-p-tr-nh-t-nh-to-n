@@ -107,7 +107,8 @@ int main() {
     if (inputChoice == 2) {
         cout << "\nSelect Testcase (0-5):\n";
         cout << "  0 (3 cities)\n  1 (5 cities)\n  2 (10 cities)\n";
-        cout << "  3 (15 cities)\n  4 (20 cities)\n 5 (23 cities)\n";
+        cout << "  3 (15 cities)\n  4 (20 cities)\n  5 (23 cities)\n";
+        cout << "  6 (20 cities, unsolvable)\n";
         cout << "Choice: "; cin >> tcChoice;
         
         string filename = "testcase/input" + to_string(tcChoice) + ".txt";
