@@ -62,7 +62,7 @@ int runHungarianNNH(vector<vector<int>>& cost, bool illu) {
 void printHeader() {
     cout << "\n======================================================\n";
     cout << CYAN << "  PROJECT: TRAVELING SALESPERSON PROBLEM (TSP)" << RESET << "\n";
-    cout << "  Instructed by: Dr. Nguyen Van A\n";
+    cout << "  Instructed by: Dr. Nguyen Van Hieu\n";
     cout << "  Developed by : Tran Duc Thang & Nguyen Gia Lam\n";
     cout << "======================================================\n\n";
 }
