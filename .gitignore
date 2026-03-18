@@ -1,5 +1,5 @@
 .cph
 .vscode
-.exe
+*.exe
 testlib.cpp
 output.txt
