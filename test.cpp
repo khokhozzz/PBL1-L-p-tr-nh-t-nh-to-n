@@ -177,7 +177,10 @@ void dfs(int depth, int currDst, int currCostReduced) {
         pathNext[currDst] = dst; 
         
         // 🛡️ LỚP KHIÊN ĐỘNG O(N^3): Nhánh này lọt qua khiên tĩnh, soi kĩ bằng Hungarian
-        int boundCost = solveVirtualHungarian(dst, depth + 1);
+        int boundCost = 0;
+        if (depth < N / 3) { // Tùy chỉnh con số này (ví dụ: N/3 hoặc N/4)
+            boundCost = solveVirtualHungarian(dst, depth + 1);
+        }
         
         // SỬA BUG ĐẾM TRÙNG Ở ĐÂY: 
         // boundCost ĐÃ TÍNH LUÔN CẢ nextCostBase (vì đường đi bị ép trong ma trận)

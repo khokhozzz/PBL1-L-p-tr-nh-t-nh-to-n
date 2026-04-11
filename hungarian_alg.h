@@ -22,7 +22,7 @@ private:
             }
             return;
         }
-        for (int dst = 0; dst < size; dst++){
+        for (int dst = 1; dst < size; dst++){
             if (isVisited[dst]) continue;
             if (currCost + cost[currDst][dst] - u[currDst] - v[dst] >= upperbound) continue;
             isVisited[dst] = true;
@@ -52,7 +52,7 @@ private:
             return;
         }
 
-        for (int dst = 0; dst < size; dst++){
+        for (int dst = 1; dst < size; dst++){
             if (isVisited[dst]) continue; 
 
             cout << CYAN << "\n[-] Step (Hungarian DFS): " << RESET << "Path = [";
