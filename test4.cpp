@@ -5,7 +5,8 @@ using namespace std;
 
 vector<int> u; vector<int> v;
 int upperBound;
-vector<bool> isVisited;
+vector<int> isVisited;
+int sum;
 
 
 void printMtrx(vector<int> &cost, int Len){
@@ -51,42 +52,25 @@ int NNN(vector<vector<int>> &cost, int size){
     return upperBound;
 }
 
-void vectorCopy(vector<int> original, vector<int> copy, int len){
-    for(int id = 0; id < len; id++){
-        copy[id] = original[id];
-    }
-}
 
-int two_opt(vector<int> &prevDes, vector<vector<int>> &cost, int size){
-    vector<int> copy(size);
-    int upperBound = INF;
-    
+int solveHungarian_algorithm(vector<vector<int>> &cost, int size, vector<int> &u, vector<int> &v){
+    vector<int> match (size + 1, -1);
+    vector<int> way (size + 1, 0);
+    vector<int> slack (size, INF);
+    vector<int> isAssigned (size, -1);
 
-}
-
-int hungarianAlgorithm(vector<vector<int>> &cost, int size){
-    vector<int> match (size + 1, -1); //match[i] = j: việc i được giao cho người j
-    vector<int> way (size + 1, 0); //way[i]: trước khi Ji được phân công thì nó đã thay thế cho J gì
-    vector<int> slack (size, INF); //chứa min của việc j trong chuỗi đang xét
-    vector<bool> isAssigned (size, false);
-    vector<bool> didAssigned (size, false);
     int res = 0;
-    for(int id = 0; id < size; id++){
-        int jobSeeker = id; //jobSeeker == người tìm việc
-        bool isProcessing = true;
+    for (int row = 0; row < size; row ++){
+        int jobSeeker = row;
         int prevMinCostJob = 0;
-        int tmpSlack;
         match[0] = jobSeeker;
-        //Chạy đến khi nào thấy được việc chưa được phân công cho bất kì jobSeeker nào
-        while(isProcessing){
-            // cout << "bug1\n";
+        while (jobSeeker != -1){
             int minCost = INF;
             int minCostJob = 0;
-            for (int job = 0; job < size; job++){
-                if (isAssigned[job]) continue;
-                tmpSlack = cost[jobSeeker][job] - u[jobSeeker] - v[job];
-                if (tmpSlack < slack[job]){
-                    slack[job] = tmpSlack;
+            for (int job = 0 ; job < size; job++){
+                if (isAssigned[job] > -1) continue;
+                if (cost[jobSeeker][job] - u[jobSeeker] - v[job] < slack[job]){
+                    slack[job] = cost[jobSeeker][job] - u[jobSeeker] - v[job];
                     way[job + 1] = prevMinCostJob;
                 }
                 if (slack[job] < minCost){
@@ -94,75 +78,136 @@ int hungarianAlgorithm(vector<vector<int>> &cost, int size){
                     minCostJob = job + 1;
                 }
             }
-            didAssigned[jobSeeker] = true;
+            u[row] += minCost;
+            res += minCost;
             for(int job = 0; job < size; job++){
-                if (isAssigned[job]){
+                if (isAssigned[job] > -1){
                     v[job] -= minCost;
-                    res -= minCost;
+                    u[isAssigned[job]] += minCost;
                 }
                 else{
                     slack[job] -= minCost;
                 }
-                if (didAssigned[job]){
-                    u[job] += minCost;
-                    res += minCost;
-                }
-            }
-            if (match[minCostJob] != -1){
-                isProcessing = true;
-                jobSeeker = match[minCostJob];
-                isAssigned[minCostJob - 1] = true;
-            }
-            else{
-                // match[minCostJob] = jobSeeker;
-                isProcessing = false; 
             }
             prevMinCostJob = minCostJob;
+            jobSeeker = isAssigned[minCostJob - 1] = match[minCostJob];
         }
-        //Luôn bắt đầu tại job chưa được nhận trong chuỗi chồng lấn job (tức là match[job] = -1)
-        //Vì điều kiện dừng của while là cho đến khi nào gặp việc chưa được phân công -> prevMinCostJob = job cuối cùng chưa đuọc phân công
         int currJob = prevMinCostJob;
         int prevJob;
-        /*
-        Dựa trên ý tưởng đảo vị trí của seeker từ job cũ đến job mới với -1 => qua nhiều vòng lặp mà kéo -1 về match[0],
-        tức là ô của seeker ban đầu đang tìm việc (không phải các seeker bị tranh việc phía sau)
-
-        Ta cũng không cần phải lo về lỗi Write before Read ở match, bởi vì:
-        - Đây là một dây chuyền mà ô sau ghi đè lên ô trước
-        - Ô đầu tiên luôn ghi đè lên ô chưa từng được sử dụng
-        => Đã kịp dịch chuyển job trước khi bị ghi đè bởi seeker khác
-
-        */
         while(match[0] != -1){
             prevJob = way[currJob];
             match[currJob] = match[prevJob];
             match[prevJob] = -1;
-            currJob = prevJob; //Mảng way sẽ cung cấp phần tử tiếp theo của chuỗi phản ứng
+            currJob = prevJob;
         }
-        fill(isAssigned.begin(), isAssigned.end(), false);
-        fill(didAssigned.begin(), didAssigned.end(), false);
+        fill(isAssigned.begin(), isAssigned.end(), -1);
         fill(slack.begin(), slack.end(), INF);
-        fill(way.begin(), way.end(), 0);
-        
+    }
+    return res;
+}
+
+void transfer(vector<bool> &isVisited, vector<int> &isAssigned, int size){
+    for (int i = 0; i < size; i++){
+        if (isVisited[i] == true) isAssigned[i] = -2;
+        else isAssigned[i] = -1;
+    }
+}
+
+int Hungarian_Node(vector<vector<int>> &cost, int size, vector<int> &isVisted){
+    vector<int> match (size + 1, -1);
+    vector<int> way (size + 1, 0);
+    vector<int> slack (size, INF);
+    vector<int> isAssigned (size, -1);
+    vector<int> u (size, 0);
+    vector<int> v (size, 0);
+    int res = sum;
+    for (int row = 0; row < size; row ++){
+        // if (isVisited[row]) continue;
+        int jobSeeker = row;
+        int prevMinCostJob = 0;
+        match[0] = jobSeeker;
+        while (jobSeeker != -1){
+            int minCost = INF;
+            int minCostJob = 0;
+            if (isVisited[jobSeeker] != -1){
+                int job = isVisited[jobSeeker];
+                if (isAssigned[job] == -1){
+                    slack[job] = cost[jobSeeker][job];
+                    way[job + 1] = 0;
+                    minCost = slack[job];
+                    minCostJob = job + 1;
+                }
+            }
+            else{
+            for (int job = 0 ; job < size; job++){
+                if (isAssigned[job] > -1) continue;
+                if (isVisited[job] != -1){
+                    continue;
+                }
+                if (cost[jobSeeker][job] - u[jobSeeker] - v[job] < slack[job]){
+                    slack[job] = cost[jobSeeker][job] - u[jobSeeker] - v[job];
+                    way[job + 1] = prevMinCostJob;
+                }
+                if (slack[job] < minCost){
+                    minCost = slack[job];
+                    minCostJob = job + 1;
+                }
+            }}
+            u[row] += minCost;
+            res += minCost;
+            for(int job = 0; job < size; job++){
+                if (isAssigned[job] > -1){
+                    v[job] -= minCost;
+                    u[isAssigned[job]] += minCost;
+                }
+                else{
+                    slack[job] -= minCost;
+                }
+            }
+            prevMinCostJob = minCostJob;
+            jobSeeker = isAssigned[minCostJob - 1] = match[minCostJob];
+        }
+        int currJob = prevMinCostJob;
+        int prevJob;
+        while(match[0] != -1){
+            prevJob = way[currJob];
+            match[currJob] = match[prevJob];
+            match[prevJob] = -1;
+            currJob = prevJob;
+        }
+        fill(isAssigned.begin(), isAssigned.end(), -1);
+        fill(slack.begin(), slack.end(), INF);
     }
     return res;
 }
 
 void dfs(int dstOrder, int currDst, int currCost, vector<vector<int>> &cost, int size){
     if (dstOrder == size - 1){
-        int tmpCost = currCost + cost[currDst][0] - u[currDst] - v[0];
+        int tmpCost = currCost + cost[currDst][0] + sum;
         upperBound = min(upperBound, tmpCost);
-
+        return;
     }
-    for (int dst = 0; dst < size; dst++){
-        if (isVisited[dst]) continue;
-        int tmpCost = currCost + cost[currDst][dst] - u[currDst] - v[dst];
-        if (tmpCost >= upperBound) continue;
-        isVisited[dst] = true;
+    int tmpCost2;
+    for (int dst = 1; dst < size; dst++){
+        if (isVisited[dst] != -1) continue;
+        isVisited[dst] = dstOrder;
+        int tmpCost = currCost + cost[currDst][dst];
+        if (tmpCost + sum >= upperBound || (tmpCost2 = tmpCost + Hungarian_Node(cost, size, isVisited)) >= upperBound){
+            isVisited[dst] = -1;
+            continue;
+        }
         dfs(dstOrder + 1, dst, tmpCost, cost, size);
-        isVisited[dst] = false;
+        isVisited[dst] = -1;
     }
     
+}
+
+void mtrxReduction(vector<vector<int>>& cost, vector<int>& u, vector<int>& v, int size){
+    for (int row = 0; row < size; row ++){
+        for (int col = 0; col < size; col ++){
+            cost[row][col] -= u[row] + v[col];
+        }
+    }
 }
 
 class Solution {
@@ -173,10 +218,11 @@ class Solution {
         u = vector<int> (size, 0);
         v = vector<int> (size, 0);
         upperBound = NNN(cost, size);
-        int sum = hungarianAlgorithm(cost, size);
-        isVisited = vector<bool> (size, false);
-        isVisited[0] = true;
-        dfs(0, 0, sum, cost, size);
+        sum = solveHungarian_algorithm(cost, size, u, v);
+        mtrxReduction(cost, u, v, size);
+        isVisited = vector<int> (size, -1);
+        isVisited[0] = -1;
+        dfs(0, 0, 0, cost, size);
         return upperBound;
     }
 };
