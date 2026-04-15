@@ -8,8 +8,8 @@ using namespace std;
 
 int main() {
     int n = 25;
-    int k = 5; // QUYỀN LỰC LÀ ĐÂY: Thích mấy chu trình thì sửa số này
-    mt19937 rng(5555); 
+    int k = 3; // QUYỀN LỰC LÀ ĐÂY: Thích mấy chu trình thì sửa số này
+    mt19937 rng(942298); 
     
     // Khởi tạo "đại dương 100"
     vector<vector<int>> matrix(n, vector<int>(n, 100));

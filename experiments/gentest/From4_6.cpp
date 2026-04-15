@@ -7,8 +7,9 @@
 using namespace std;
 
 int main() {
+    freopen("output.txt", "w", stdout);
     int n = 25;
-    mt19937 rng(2353); // Thay đổi seed lô tô ở đây
+    mt19937 rng(10615); // Thay đổi seed lô tô ở đây
     
     // THÍCH BAO NHIÊU CHU TRÌNH THÌ SỬA Ở ĐÂY (Nên thử 4, 5, 6)
     int num_subtours = 6; 
@@ -29,10 +30,29 @@ int main() {
     shuffle(nodes.begin(), nodes.end(), rng);
 
     // 2. Chia chác số lượng đỉnh cho các chu trình
-    vector<int> sizes(num_subtours, n / num_subtours);
-    for(int i = 0; i < n % num_subtours; ++i) {
-        sizes[i]++; // Thằng nào lẻ thì cộng thêm 1 đỉnh
+    // vector<int> sizes(num_subtours, n / num_subtours);
+    // for(int i = 0; i < n % num_subtours; ++i) {
+    //     sizes[i]++; // Thằng nào lẻ thì cộng thêm 1 đỉnh
+    // }
+
+    vector<int> sizes(num_subtours, 2); 
+    int remaining_nodes = n - 2 * num_subtours; 
+
+    // Kiểm tra chống ngu (phòng khi bạn lên cơn set num_subtours = 15)
+    if (remaining_nodes < 0) {
+        cerr << "Lỗi: Tham lam quá, " << n << " đỉnh không đủ chia cho " << num_subtours << " chu trình đâu!\n";
+        return 1;
     }
+
+    // Bắt đầu quay xổ số phát đỉnh thừa
+    while(remaining_nodes > 0) {
+        int lucky_tour = rng() % num_subtours; // Quay trúng thằng nào
+        sizes[lucky_tour]++;                   // Thằng đó được nhận thêm đỉnh
+        remaining_nodes--;
+    }
+
+    // Lắc lồng cầu thêm phát nữa cho thứ tự các chu trình cũng loạn cào cào lên
+    shuffle(sizes.begin(), sizes.end(), rng);
 
     // 3. Chuẩn bị kho giá trị rải đều cho các cạnh trong chu trình ảo
     vector<int> cost_pool;

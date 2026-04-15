@@ -96,7 +96,7 @@ protected:
     int upperbound;
     int len;
     vector<bool> isVisited;
-    vector<int> bestPath; // Protected để thằng cu Hungarian xài chung
+    vector<int> bestPath;
 
 public:    
     int solveUpperboundNNH(vector<vector<int>> &cost, int size){
