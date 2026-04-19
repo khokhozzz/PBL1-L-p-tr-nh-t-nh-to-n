@@ -263,7 +263,7 @@ class Solution {
         int size = cost.size();
         u = vector<int> (size, 0);
         v = vector<int> (size, 0);
-        upperBound = NNN(cost, size);
+        // upperBound = NNN(cost, size);
         sum = solveHungarian_algorithm(cost, size);
         // cout << "Can duoi: " << sum << endl;
         // cout << "Ket qua: " << upperBound << endl;

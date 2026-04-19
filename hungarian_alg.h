@@ -40,7 +40,9 @@ private:
             int finalCost = currCost + cost[currDst][0] - u[currDst] - v[0];
             cout << CYAN << "[-] Step (Hungarian DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
-            cout << "]\n";
+            cout << "]";
+            cout << " Current Cost = " << YELLOW << currCost << RESET << "\n";
+            cout << "    Cost to city " << YELLOW << "0" << RESET << ": " << cost[currDst][0] << endl; 
             if (finalCost < upperbound) {
                 cout << GREEN << "    -> NEW BEST PATH! Adjusted Cost: " << finalCost << RESET << "\n";
                 upperbound = finalCost;
@@ -236,7 +238,7 @@ public:
             while(match[0] != -1){
                 prevJob = way[currJob];
                 
-                cout << "    Swapping... currTarget=" << currJob << ", prevTarget=" << prevJob << "\n";
+                cout << "    Swapping... currDst=" << currJob << ", prevDst=" << prevJob << "\n";
                 cout << "    Way:   [";
                 for(int i=0; i<=size; i++) {
                     if (i == currJob) cout << YELLOW << way[i] << RESET;

@@ -4,3 +4,6 @@
 testlib.cpp
 output.txt
 experiments
+*.docx
+*.pdf
+*.tmp

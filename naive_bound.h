@@ -54,7 +54,9 @@ private:
             int finalCost = currSum + cost[currDst][0];
             cout << CYAN << "[-] Step (Naive Bound): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
-            cout << "]\n";
+            cout << "]";
+            cout << " Current Cost = " << YELLOW << currSum << RESET << "\n";
+            cout << "    Cost to city " << YELLOW << "0" << RESET << ": " << cost[currDst][0] << endl; 
             if (finalCost < res) {
                 cout << GREEN << "    -> NEW BEST PATH FOUND! Cost: " << finalCost << RESET << "\n";
                 res = finalCost;

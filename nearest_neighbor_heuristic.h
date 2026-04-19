@@ -49,7 +49,9 @@ private:
             int finalCost = currSum + cost[currDst][0];
             cout << CYAN << "[-] Step (NNH Bound DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
-            cout << "]\n";
+            cout << "]";
+            cout << " Current Cost = " << YELLOW << currSum << RESET << "\n";
+            cout << "    Cost to city " << YELLOW << "0" << RESET << ": " << cost[currDst][0] << endl; 
             if (finalCost < upperbound) {
                 cout << GREEN << "    -> NEW BEST PATH! Cost: " << finalCost << " (beats bound " << upperbound << ")" << RESET << "\n";
                 upperbound = finalCost;
@@ -66,7 +68,7 @@ private:
 
             cout << CYAN << "\n[-] Step (NNH Bound DFS): " << RESET << "Path = [";
             for (int i = 0; i < path.size(); i++) cout << path[i] << (i < path.size() - 1 ? " -> " : "");
-            cout << "], Curr Cost = " << YELLOW << currSum << RESET << ", NNH Bound = " << MAGENTA << upperbound << RESET << "\n";
+            cout << "], Curr Cost = " << YELLOW << currSum << RESET << ", upper bound = " << RED << upperbound << RESET << "\n";
 
             cout << "    Standing at city " << currDst << " checking city " << dst << ", row array: [";
             for (int i = 0; i < len; i++) {
@@ -212,7 +214,7 @@ public:
     int illuTsp_NNH(vector<vector<int>> &cost){
         len = cost.size();
         bestPath.clear();
-        cout << YELLOW << "\n=== STARTING NNH HEURISTIC SEARCH ===" << RESET << "\n";
+        cout << YELLOW << "\n=== STARTING NNH SEARCH ===" << RESET << "\n";
         upperbound = illuUpperboundNNH(cost, len);
         isVisited = vector<bool>(len, false);
         vector<int> path;
