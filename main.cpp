@@ -105,16 +105,13 @@ int main() {
     int n;
 
     if (inputChoice == 2) {
-        cout << "\nSelect Testcase (0-5):\n";
-        cout << "  0 (3 cities)\n  1 (5 cities)\n  2 (10 cities)\n";
-        cout << "  3 (15 cities)\n  4 (20 cities)\n  5 (23 cities)\n";
-        cout << "  6 (20 cities, unsolvable)\n";
-        cout << "Choice: "; cin >> tcChoice;
-        
-        string filename = "testcase/input" + to_string(tcChoice) + ".txt";
+        cin.ignore();
+        string filename;
+        cout << YELLOW << "Enter the direction: " << RESET;
+        getline(cin, filename);
         ifstream fin(filename);
         if (!fin) {
-            cout << RED << "Error: Cannot open " << filename << " (make sure the 'testcase' folder exists)" << RESET << "\n";
+            cout << RED << "Error: Cannot open " << filename << " (make sure the file exists)" << RESET << "\n";
             return 1;
         }
         fin >> n;
