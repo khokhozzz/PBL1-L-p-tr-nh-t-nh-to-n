@@ -263,7 +263,7 @@ class Solution {
         int size = cost.size();
         u = vector<int> (size, 0);
         v = vector<int> (size, 0);
-        // upperBound = NNN(cost, size);
+        upperBound = NNN(cost, size);
         sum = solveHungarian_algorithm(cost, size);
         // cout << "Can duoi: " << sum << endl;
         // cout << "Ket qua: " << upperBound << endl;
@@ -307,7 +307,7 @@ int main(){
     }
     duration<double, milli> duration;
     auto start = high_resolution_clock::now();
-    for (int i = 1; i<= 3; i++){
+    for (int i = 1; i<= 1; i++){
         Solution sol;
         int res = sol.tsp(cost);
         cout << res <<endl;

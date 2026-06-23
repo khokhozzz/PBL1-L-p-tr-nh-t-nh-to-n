@@ -108,8 +108,28 @@ private:
 
 public:
     int solveHungarian_algorithm(vector<vector<int>> &cost, int size, vector<int> &u, vector<int> &v){
-        vector<int> match (size + 1, -1);
-        vector<int> way (size + 1, 0);
+        /*
+        Lưu ý: mảng match và way chơi index từ 1 đến n. 
+        index = 0 dùng để lưu giá trị tạm,
+        tức là thay vì tạo hai biến mới và cho hai mảng này dùng index từ 0 đến n - 1 
+        thì ta dùng id = 0 làm biến tạm và index từ 1 đến n để dễ quản lý vòng lặp
+
+        Về cơ bản, đối với mảng match và way sẽ không tồn tại dst0/job0, mà nó là dst1/job1.
+        Nên khi lưu trữ kết quả vào mảng match và way thì ta thường cộng 1 vào index,
+        vì vốn dĩ bài toán xử lí từ index 0, có mỗi hai cái mảng này là dùng index 1
+        */
+        vector<int> match (size + 1, -1);//match[i]: việc i do người match[i] làm
+        vector<int> way (size + 1, 0);//way[i]: trước khi được phân làm việc i thì người match[way[i]] đang làm việc way[i]
+        //Có một tính chất của mảng way và match: các phần tử way[i] bằng nhau thì chỉ vào đúng một người duy nhất
+        //người đó là match[way[i]]. Cần phải hiểu là việc có nhiều phần tử way[i] bằng nhau, tức là người đó có xác xuất
+        //được phân một trong các việc i mới
+        /*
+        Ví dụ: (dùng index 1 với job, người thì vẫn dùng 0)
+            Way:   [0, 0, 0, 2, 2, 4]
+            Match: [3, 2, 0, -1, 1, -1]
+            - Người số match[way[i]] = 0 trước khi được làm việc i = 3 hoặc 4 thì đang làm việc way[i] = 2
+            - Người số 1 trước khi được làm việc 5 thì đang làm việc 4
+        */
         vector<int> slack (size, INF);
         vector<int> isAssigned (size, -1);
 
@@ -118,6 +138,8 @@ public:
             int jobSeeker = row;
             int prevMinCostJob = 0;
             match[0] = jobSeeker;
+            //Lý do lấy jobSeeker == -1 là điểm dừng: nếu match[minCostJob] == -1 thì tức là chỗ đó không có tranh chấp
+            //n job, n người làm thì kiểu gì cũng lòi ra job chưa có người làm, chỉ là lâu hay mau
             while (jobSeeker != -1){
                 int minCost = INF;
                 int minCostJob = 0;
@@ -125,6 +147,8 @@ public:
                     if (isAssigned[job] > -1) continue;
                     if (cost[jobSeeker][job] - u[jobSeeker] - v[job] < slack[job]){
                         slack[job] = cost[jobSeeker][job] - u[jobSeeker] - v[job];
+                        //Lý do gán way[job + 1] = prevMinCostJob: 1. Vì đây là việc bị xung đột
+                        //2. Trước khi đổi sang việc job + 1, match[way[job + 1]] đã làm việc gì, và việc đó chính là prevMinCostJob
                         way[job + 1] = prevMinCostJob;
                     }
                     if (slack[job] < minCost){
@@ -145,7 +169,22 @@ public:
                 }
                 prevMinCostJob = minCostJob;
                 jobSeeker = isAssigned[minCostJob - 1] = match[minCostJob];
+                /*
+                minCostJob là job mà ta lựa chọn để phân việc cho jobSeeker
+                - Ta thấy rằng tại vị trí nào đó mà match[minCostJob] = -1, tức là việc đó chưa được phân cho ai.
+                Vậy thì ta sẽ cho jobSeeker làm việc đó luôn, kết thúc vòng lặp (lý do vì sao điều kiện dừng là JobSeeker == -1)
+                - Nếu việc đó đã có người làm, tức là match[minCostJob] != -1, về cơ bản thì ta phải cần
+                "tìm việc cho thằng jobSeeker hiện tại (sau khi được gắn với match[minCostJob]) và những jobSeeker trước đó"
+                Nhưng thực tế lại không cần làm như vậy,
+                ta chỉ cần xem thằng jobSeeker hiện tại có những việc nào chi phí rẻ hơn những thằng trước đó hay không
+                Mảng slack đã được sinh ra để làm việc này.
+                - Lý do mà ta bỏ qua những ô isAssigned[job] != -1: Vì ta biết chắc rằng job này sẽ có người nhận,
+                chỉ đơn giản là người nhận đang tranh chấp lẫn nhau thôi
+                */
             }
+            //Lý do lấy mốc currJob ở prevMinCostJob/MinCostJob:
+            //jobSeeker = isAssigned[minCostJob - 1] = match[minCostJob]; như ta có thể thấy, đây là vị trí chắc chắn có -1.
+            //Nhờ đó mà ta có thể mang cái giá trị này về match[0]
             int currJob = prevMinCostJob;
             int prevJob;
             while(match[0] != -1){
