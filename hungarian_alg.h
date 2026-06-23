@@ -137,6 +137,7 @@ public:
         for (int row = 0; row < size; row ++){
             int jobSeeker = row;
             int prevMinCostJob = 0;
+            //Kết thúc Đường tăng hoa ở người chưa có việc
             match[0] = jobSeeker;
             //Lý do lấy jobSeeker == -1 là điểm dừng: nếu match[minCostJob] == -1 thì tức là chỗ đó không có tranh chấp
             //n job, n người làm thì kiểu gì cũng lòi ra job chưa có người làm, chỉ là lâu hay mau
@@ -156,6 +157,7 @@ public:
                         minCostJob = job + 1;
                     }
                 }
+                //Giữ lại các số 0 cũ (mà đã được chọn trước đó), tạo thêm 1 số 0 mới
                 u[row] += minCost;
                 res += minCost;
                 for(int job = 0; job < size; job++){
@@ -185,6 +187,7 @@ public:
             //Lý do lấy mốc currJob ở prevMinCostJob/MinCostJob:
             //jobSeeker = isAssigned[minCostJob - 1] = match[minCostJob]; như ta có thể thấy, đây là vị trí chắc chắn có -1.
             //Nhờ đó mà ta có thể mang cái giá trị này về match[0]
+            //Bắt đầu đường tăng hoa bằng việc chưa có người
             int currJob = prevMinCostJob;
             int prevJob;
             while(match[0] != -1){
